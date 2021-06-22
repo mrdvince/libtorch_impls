@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-project(mnist)
+project(fmnist)
 set(CMAKE_CXX_STANDARD 14)
 
 find_package(Torch REQUIRED)
 
-option(DOWNLOAD_FASHION_MNIST "Download the MNIST dataset from the internet" ON)
+option(DOWNLOAD_FASHION_MNIST "Download the fmnist dataset from the internet" ON)
 if (DOWNLOAD_FASHION_MNIST)
-  message(STATUS "Downloading MNIST dataset")
+  message(STATUS "Downloading fmnist dataset")
   execute_process(
     COMMAND python ${CMAKE_CURRENT_LIST_DIR}/download_fmnist.py
       -d ${CMAKE_BINARY_DIR}/data
     ERROR_VARIABLE DOWNLOAD_ERROR)
   if (DOWNLOAD_ERROR)
-    message(FATAL_ERROR "Error downloading MNIST dataset: ${DOWNLOAD_ERROR}")
+    message(FATAL_ERROR "Error downloading fmnist dataset: ${DOWNLOAD_ERROR}")
   endif()
 endif()
 

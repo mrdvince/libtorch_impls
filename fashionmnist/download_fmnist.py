@@ -74,8 +74,8 @@ def main():
     try:
         for resource in RESOURCES:
             path = os.path.join(options.destination, resource)
-            url = "http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/".format(
-                resource
+            url = (
+                f"http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/{resource}"
             )
             download(path, url, options.quiet)
             unzip(path, options.quiet)
