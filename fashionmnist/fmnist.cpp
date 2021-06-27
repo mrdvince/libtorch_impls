@@ -7,7 +7,7 @@
 #include <vector>
 
 // Where to find the MNIST dataset.
-const char* kDataRoot = "./data";
+const char *kDataRoot = "./data";
 
 // The batch size for training.
 const int64_t kTrainBatchSize = 64;
@@ -53,16 +53,12 @@ struct Net : torch::nn::Module {
 };
 
 template <typename DataLoader>
-void train(
-    size_t epoch,
-    Net& model,
-    torch::Device device,
-    DataLoader& data_loader,
-    torch::optim::Optimizer& optimizer,
-    size_t dataset_size) {
+void train(size_t epoch, Net &model, torch::Device device,
+           DataLoader &data_loader, torch::optim::Optimizer &optimizer,
+           size_t dataset_size) {
     model.train();
     size_t batch_idx = 0;
-    for (auto& batch : data_loader) {
+    for (auto &batch : data_loader) {
         auto data = batch.data.to(device), targets = batch.target.to(device);
         optimizer.zero_grad();
         auto output = model.forward(data);
@@ -72,44 +68,33 @@ void train(
         optimizer.step();
 
         if (batch_idx++ % kLogInterval == 0) {
-            std::printf(
-                "\rTrain Epoch: %ld [%5ld/%5ld] Loss: %.4f",
-                epoch,
-                batch_idx * batch.data.size(0),
-                dataset_size,
-                loss.template item<float>());
+            std::printf("\rTrain Epoch: %ld [%5ld/%5ld] Loss: %.4f", epoch,
+                        batch_idx * batch.data.size(0), dataset_size,
+                        loss.template item<float>());
         }
     }
 }
 
 template <typename DataLoader>
-void test(
-    Net& model,
-    torch::Device device,
-    DataLoader& data_loader,
-    size_t dataset_size) {
+void test(Net &model, torch::Device device, DataLoader &data_loader,
+          size_t dataset_size) {
     torch::NoGradGuard no_grad;
     model.eval();
     double test_loss = 0;
     int32_t correct = 0;
-    for (const auto& batch : data_loader) {
+    for (const auto &batch : data_loader) {
         auto data = batch.data.to(device), targets = batch.target.to(device);
         auto output = model.forward(data);
-        test_loss += torch::nll_loss(
-                         output,
-                         targets,
-                         /*weight=*/{},
-                         torch::Reduction::Sum)
+        test_loss += torch::nll_loss(output, targets,
+                                     /*weight=*/{}, torch::Reduction::Sum)
                          .template item<float>();
         auto pred = output.argmax(1);
         correct += pred.eq(targets).sum().template item<int64_t>();
     }
 
     test_loss /= dataset_size;
-    std::printf(
-        "\nTest set: Average loss: %.4f | Accuracy: %.3f\n",
-        test_loss,
-        static_cast<double>(correct) / dataset_size);
+    std::printf("\nTest set: Average loss: %.4f | Accuracy: %.3f\n", test_loss,
+                static_cast<double>(correct) / dataset_size);
 }
 
 auto main() -> int {
@@ -128,27 +113,30 @@ auto main() -> int {
     Net model;
     model.to(device);
 
-    auto train_dataset = torch::data::datasets::MNIST(kDataRoot)
-                             .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
-                             .map(torch::data::transforms::Stack<>());
+    auto train_dataset =
+        torch::data::datasets::MNIST(kDataRoot)
+            .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
+            .map(torch::data::transforms::Stack<>());
     const size_t train_dataset_size = train_dataset.size().value();
     auto train_loader =
         torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
             std::move(train_dataset), kTrainBatchSize);
 
-    auto test_dataset = torch::data::datasets::MNIST(
-                            kDataRoot, torch::data::datasets::MNIST::Mode::kTest)
-                            .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
-                            .map(torch::data::transforms::Stack<>());
+    auto test_dataset =
+        torch::data::datasets::MNIST(kDataRoot,
+                                     torch::data::datasets::MNIST::Mode::kTest)
+            .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
+            .map(torch::data::transforms::Stack<>());
     const size_t test_dataset_size = test_dataset.size().value();
     auto test_loader =
         torch::data::make_data_loader(std::move(test_dataset), kTestBatchSize);
 
-    torch::optim::SGD optimizer(
-        model.parameters(), torch::optim::SGDOptions(0.01).momentum(0.5));
+    torch::optim::SGD optimizer(model.parameters(),
+                                torch::optim::SGDOptions(0.01).momentum(0.5));
 
     for (size_t epoch = 1; epoch <= kNumberOfEpochs; ++epoch) {
-        train(epoch, model, device, *train_loader, optimizer, train_dataset_size);
+        train(epoch, model, device, *train_loader, optimizer,
+              train_dataset_size);
         test(model, device, *test_loader, test_dataset_size);
     }
 }
