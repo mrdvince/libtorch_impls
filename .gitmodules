@@ -1,0 +1,3 @@
+[submodule "skin_cancer"]
+	path = skin_cancer
+	url = git@github.com:mrdvince/skin_cancer.git
