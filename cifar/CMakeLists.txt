@@ -3,10 +3,14 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 project(cifar VERSION 1.0.0 LANGUAGES CXX)
 
 set(EXECUTABLE_NAME cifar)
+set(CMAKE_CXX_STANDARD 14)
+
 find_package(Torch REQUIRED PATHS ~/libtorch)
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/fetch_cifar10.cmake)
+
 add_executable(${EXECUTABLE_NAME})
-target_sources(${EXECUTABLE_NAME} PRIVATE src/main.cpp
+target_sources(${EXECUTABLE_NAME} PRIVATE main.cpp
                                           src/model.cpp
                                           src/cifar10.cpp
                                           include/model.h
