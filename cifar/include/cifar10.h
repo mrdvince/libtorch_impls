@@ -10,16 +10,24 @@ class CIFAR10 : public torch::data::datasets::Dataset<CIFAR10> {
    public:
     enum Mode { kTrain,
                 kTest };
-    // load cifar10 dataset from path
+
+    // load cifar1 dataset from path
     explicit CIFAR10(const std::string &root, Mode mode = Mode::kTrain);
+    
     // get item
     torch::data::Example<> get(size_t index) override;
+    
+    // size of dataset
+    torch::optional<size_t> size() const override;
+
     // if training -> true
     bool is_train() const noexcept;
+    
     // all images stacked into a tensor
-    const torch::Tensor &images;
+     torch::Tensor &images();
+    
     // targets stacked into tensor
-    const torch::Tensor &targets;
+     torch::Tensor &targets() ;
 
    private:
     torch::Tensor images_;

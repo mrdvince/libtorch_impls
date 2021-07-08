@@ -63,3 +63,29 @@ std::pair<torch::Tensor, torch::Tensor> read_data(std::string root, bool train) 
 }
 }  // namespace
 
+CIFAR10::CIFAR10(const std::string &root, Mode mode) : mode_(mode) {
+    auto data = read_data(root, mode == Mode::kTrain);
+
+    images_ = std::move(data.first);
+    targets_ = std::move(data.second);
+}
+
+torch::data::Example<> CIFAR10::get(size_t index) {
+    return {images_[index], targets_[index]};
+}
+
+torch::optional<size_t> CIFAR10::size() const {
+    return images_.size(0);
+}
+
+bool CIFAR10::is_train() const noexcept {
+    return mode_ == Mode::kTrain;
+}
+
+torch::Tensor &CIFAR10::images() {
+    return images_;
+}
+
+torch::Tensor &CIFAR10::targets() {
+    return targets_;
+}
