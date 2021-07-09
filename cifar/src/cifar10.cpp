@@ -6,7 +6,7 @@ constexpr uint32_t kSizePerBatch = 10000;
 constexpr uint32_t kImageRows = 32;
 constexpr uint32_t kImageColumns = 32;
 // shape -> (3,32,32) for each color channel, R-> 1024, G->1024, B->1024
-constexpr uint32_t kBytesPerRow = 3072;
+constexpr uint32_t kBytesPerRow = 3072+1;
 // 32 x 32 -> single color channel
 constexpr uint32_t kBytesPerChannelPerRow = 1024;
 constexpr uint32_t kBytesPerBatchFile = kBytesPerRow * kSizePerBatch;
@@ -40,12 +40,14 @@ std::pair<torch::Tensor, torch::Tensor> read_data(std::string root, bool train) 
     for (auto &file : files) {
         // /path/to/image/ + data_bin_file -> /path/to/data_bin_file = data/cifar10/data_batch_1.bin
         auto path = join_paths(root, file);
-        std::cout << path << std::endl;
+        // std::cout << path << std::endl;
         std::ifstream data(path, std::ios::binary);
         TORCH_CHECK(data, "Error opening file at: ", path);
         data_buffer.insert(data_buffer.end(), std::istreambuf_iterator<char>(data), {});
     }
     // size assertion
+    std::cout<<data_buffer.size()<<" " << (files.size() * kBytesPerBatchFile)<<std::endl;
+    
     TORCH_CHECK(data_buffer.size() == files.size() * kBytesPerBatchFile, "Unexpected file sizes");
     // shape -> sample_size x 3 x 32 x 32
     auto images = torch::empty({num_samples, 3, kImageRows, kImageColumns}, torch::kByte);
