@@ -5,7 +5,7 @@ using namespace torch;
 class ModelImpl : public torch::nn::Module {
    public:
     ModelImpl();
-    torch::Tensor foward(torch::Tensor x);
+    torch::Tensor forward(torch::Tensor x);
 
    private:
     nn::Conv2d conv1;
