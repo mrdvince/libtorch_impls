@@ -13,6 +13,9 @@ add_executable(${EXECUTABLE_NAME})
 target_sources(${EXECUTABLE_NAME} PRIVATE main.cpp
                                           src/model.cpp
                                           src/cifar10.cpp
+                                          src/test.cpp
+                                          src/train.cpp
+                                          include/trainer.h
                                           include/model.h
                                           include/cifar10.h
 )
